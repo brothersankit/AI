@@ -1,0 +1,174 @@
+from queue import Queue,LifoQueue
+import copy
+
+#Checking the number of inversion counts in the given grid
+#If its odd than the target grid cannot be reached
+def isSolvable(a):
+    arr=[]
+    for i in range(3):
+        for j in range(3):
+            arr.append(a[i][j])
+    
+    inv_count = 0
+    empty_value = -1
+    
+    for i in range(0, 9):
+        for j in range(i + 1, 9):
+            if arr[j] != empty_value and arr[i] != empty_value and arr[i] > arr[j]:
+                inv_count += 1
+    
+    #If inversion count is even its solvable
+    if(inv_count%2):
+        return False
+    else:
+        return True
+
+    
+target_state=[[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, -1]]
+
+
+#Simply print the state of grid
+def print_state(st):
+    for i in st:
+        print(i)
+    print("\n")
+
+
+#Return the co-ordinates of blank space in the puzzle    
+def findblank(temp):
+    for i in range(3):
+        for j in range(3):
+            if(temp[i][j] == -1):
+                return (i,j)
+
+
+#Breadth-first search implemented using FIFO queue data structure
+def bfs(initial_state,target_state):
+    q = Queue()
+    q.put(initial_state)
+    step = 0
+    visited = {}
+    while(not(q.empty())):
+        temp = q.get()
+        if(temp == target_state):
+            return step
+        k = tuple(map(tuple,temp))
+        if k not in visited.keys():
+            visited.update({k : 1})
+            step += 1
+            x,y = findblank(temp)
+            #Right check
+            if(y<2):
+                temp2 = copy.deepcopy(temp)
+                z = temp2[x][y] 
+                temp2[x][y] = temp2[x][y+1] 
+                temp2[x][y+1] = z
+                q.put(temp2)
+            #left check
+            if(y>0):
+                temp2 = copy.deepcopy(temp)
+                z = temp2[x][y] 
+                temp2[x][y] = temp2[x][y-1] 
+                temp2[x][y-1] = z
+                q.put(temp2)
+            #Up check
+            if(x>0):
+                temp2 = copy.deepcopy(temp)
+                z = temp2[x][y] 
+                temp2[x][y] = temp2[x-1][y] 
+                temp2[x-1][y] = z
+                q.put(temp2)
+            #Down check
+            if(x<2):
+                temp2 = copy.deepcopy(temp)
+                z = temp2[x][y] 
+                temp2[x][y] = temp2[x+1][y] 
+                temp2[x+1][y] = z
+                q.put(temp2)
+    return -1         
+
+
+#DFS uses a stack data structure for its implementation
+def dfs(initial_state, target_state):
+    q = LifoQueue()
+    q.put(initial_state)
+    step = 0
+    visited = {}
+    while(not(q.empty())):
+        temp = q.get()
+        if(temp == target_state):
+            return step
+        k = tuple(map(tuple, temp))
+        if k not in visited.keys():
+            visited.update({k: 1})
+            step += 1
+            x,y = findblank(temp)
+            #Right check
+            if(y<2):
+                temp2 = copy.deepcopy(temp)
+                z = temp2[x][y] 
+                temp2[x][y] = temp2[x][y+1] 
+                temp2[x][y+1] = z
+                q.put(temp2)
+            #left check
+            if(y>0):
+                temp2 = copy.deepcopy(temp)
+                z = temp2[x][y] 
+                temp2[x][y] = temp2[x][y-1] 
+                temp2[x][y-1] = z
+                q.put(temp2)
+            #Up check
+            if(x>0):
+                temp2 = copy.deepcopy(temp)
+                z = temp2[x][y] 
+                temp2[x][y] = temp2[x-1][y] 
+                temp2[x-1][y] = z
+                q.put(temp2)
+            #Down check    
+            if(x<2):
+                temp2 = copy.deepcopy(temp)
+                z = temp2[x][y] 
+                temp2[x][y] = temp2[x+1][y] 
+                temp2[x+1][y] = z
+                q.put(temp2)
+    return -1 
+
+
+print("Enter Initial State : ")
+initial_state = []
+print("Enter 1 for Random grid.\nEnter 2 for user input .")
+choice = int(input("Enter your choice : "))
+if(choice==2):
+    for i in range(1, 4):
+        print("Enter row ", i, ": ", sep=" ", end=" ")
+        initial_state.append(list(map(int, input().split())))
+else:
+    initial_state = [[3, 2, 1],
+                    [4, 5, 6],
+                    [8, 7, -1]]
+        
+print("\n-------Initial State-------\n")
+print_state(initial_state)
+print("-------Target State-------\n")
+print_state(target_state)
+
+if(isSolvable(initial_state)):
+    bfscount = bfs(initial_state,target_state)
+    if(bfscount != -1):
+        print("problem solved with BFS in "+ str(bfscount) +" steps")
+    else:
+        print("\nproblem cannot be solved")
+        exit(1)
+    dfscount = dfs(initial_state,target_state)
+    print("\nproblem solved with DFS in "+ str(dfscount) +" steps")
+    if(bfscount > dfscount):
+        print("\nDFS took less number of steps than BFS\n")
+    elif(dfscount > bfscount):
+        print("\nBFS took less number of steps than DFS\n")
+    else:
+        print("\nBFS and DFS took equal number of steps\n")
+else:
+    print("\nproblem cannot be solved\n")
+exit(1)
